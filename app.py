@@ -1,6 +1,6 @@
 import os
 import sys
-import time
+import time, datetime
 import requests
 import re
 import logging
@@ -17,6 +17,7 @@ logging.basicConfig(
 URL = 'https://egov.uscis.gov/casestatus/mycasestatus.do'
 HEADER = {'user-agent': '"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"'}
 TELEGRAM_API = 'https://api.telegram.org/bot{}/{}?chat_id={}&text={}'
+
 
 def check_status(case_id):
     # Use a dictionary to store the payload
@@ -37,21 +38,31 @@ def check_status(case_id):
 
 
 def send_notification(telegram_bot_api, telegram_id, case_id):
-    # Check the status of the case
-    status = check_status(case_id)
+    # Initialize the previous_result variable with None
+    previous_result = None
 
-    # Use the format method to insert the values into the TELEGRAM_API string
-    url = TELEGRAM_API.format(telegram_bot_api, 'sendMessage', telegram_id, status)
+    while True:
+        # Get the current time
+        now = datetime.datetime.now()
 
-    # Send a GET request to the Telegram API in a separate thread
-    thread = threading.Thread(target=requests.get, args=(url, HEADER))
-    thread.start()
-    
-    # Set a timer to run the function every morning at 10:00 AM
-    schedule.every().day.at("10:00").do(send_notification, telegram_bot_api, telegram_id, case_id)
+        # If the current time is 9:00 AM or 8:00 PM
+        if (now.time() == datetime.time(9, 0)) or (now.time() == datetime.time(20, 0)):
+            # Check the status of the case
+            status = check_status(case_id)
+            print(status)
+            # Compare the current result with the previous result
+            if status != previous_result:
+                # If the results are different, set the previous result to the current result
+                previous_result = status
 
-while True:
-    schedule.run_pending()
+                # Use the format method to insert the values into the TELEGRAM_API string
+                url = TELEGRAM_API.format(telegram_bot_api, 'sendMessage', telegram_id, status)
+
+                # Send a GET request to the Telegram API in a separate thread
+                thread = threading.Thread(target=requests.get, args=(url, HEADER))
+                thread.start()
+
+
 
 if __name__ == '__main__':
     # Check for the required environment variables

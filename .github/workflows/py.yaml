@@ -9,16 +9,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  tests:
+  run:
     name: tox on ${{ matrix.python-version }}
     runs-on: ubuntu-latest
-    env:
-      USING_COVERAGE: '3.6,3.8'
-
-    strategy:
-      matrix:
-        python-version: ["3.6", "3.7", "3.8", "pypy3"]
-
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4

@@ -16,7 +16,7 @@ jobs:
           
       - name: install python packages
         run: |
-          python -m pip install --upgrade pip --use-pep517
+          apt install python3.8 python3-pip
           pip install -r requirements.txt
           
       - name: execute py script # run app.py

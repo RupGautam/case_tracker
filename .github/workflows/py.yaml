@@ -14,9 +14,22 @@ jobs:
         with:
           python-version: '3.8' # install the python version needed
           
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install tar make gcc
+          
+      - name: Install Python 3.8
+        run: |
+          wget https://www.python.org/ftp/python/3.8.5/Python-3.8.5.tar.xz
+          tar xf Python-3.8.5.tar.xz
+          cd Python-3.8.5
+          ./configure
+          make
+          sudo make install
+
       - name: install python packages
         run: |
-          apt install python3.8 python3-pip
           pip install -r requirements.txt
           
       - name: execute py script # run app.py
